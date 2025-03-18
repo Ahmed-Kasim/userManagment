@@ -65,7 +65,7 @@ public class UserService {
     }
 
     private boolean isStrongPassword(String password) {
-        return password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$");
+        return password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$\n");
     }
 
     private boolean isValidPhoneNumber(String phone) {
@@ -79,6 +79,9 @@ public class UserService {
     public User getUserByAccId(Long accId) {
         Optional<User> userOptional = userRepository.findById(accId);
         return userOptional.orElse(null);  // Returns user if found, otherwise null
+    }
+    public boolean doesEmailExist(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
 

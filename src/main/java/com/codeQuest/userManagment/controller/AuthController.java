@@ -62,5 +62,11 @@ public class AuthController {
         User user = userService.getUserByAccId(accId); // Create this method in UserService
         return user != null ? ResponseEntity.ok(user.getEmail()) : ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
+        boolean exists = userService.doesEmailExist(email);
+        return ResponseEntity.ok(exists);
+    }
 }
 
