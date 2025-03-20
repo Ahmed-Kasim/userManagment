@@ -46,7 +46,7 @@ public class UserService {
         }
 
         User user = new User();
-        user.setPassword(passwordEncoder.encode(userDto.getPassword())); // Encrypt password
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setEmail(userDto.getEmail());
@@ -78,7 +78,7 @@ public class UserService {
 
     public User getUserByAccId(Long accId) {
         Optional<User> userOptional = userRepository.findById(accId);
-        return userOptional.orElse(null);  // Returns user if found, otherwise null
+        return userOptional.orElse(null);
     }
     public boolean doesEmailExist(String email) {
         return userRepository.existsByEmail(email);

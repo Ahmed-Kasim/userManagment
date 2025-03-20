@@ -26,8 +26,8 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    private final String OTP_API_URL = "http://localhost:8080/otp/send";
-    private final String OTP_VERIFY_URL = "http://localhost:8080/otp/verify";
+    private final String OTP_API_URL = "https://passwordrest-codequest-bb2878d83224.herokuapp.com/otp/send";
+    private final String OTP_VERIFY_URL = "https://passwordrest-codequest-bb2878d83224.herokuapp.com/otp/verify";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
