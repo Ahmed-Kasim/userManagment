@@ -65,7 +65,7 @@ public class UserService {
     }
 
     private boolean isStrongPassword(String password) {
-        return password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$\n");
+        return password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$");
     }
 
     private boolean isValidPhoneNumber(String phone) {
