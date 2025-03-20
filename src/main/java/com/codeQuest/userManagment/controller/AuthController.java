@@ -44,19 +44,28 @@ public class AuthController {
         }
 
         String email = userDto.getEmail();
+
         pendingUsers.put(email, userDto);
 
         ResponseEntity<String> otpResponse = restTemplate.postForEntity(
-                OTP_API_URL + "?email=" + email, null, String.class
+                OTP_API_URL + "?email=" + email,
+                null,
+                String.class
         );
 
-        return ResponseEntity.ok(Map.of("message", "OTP sent! Please verify your email."));
+        if (!otpResponse.getBody().contains("OTP sent")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Failed to send OTP."));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "OTP sent! Please enter your OTP to verify."));
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
         ResponseEntity<String> otpResponse = restTemplate.postForEntity(
-                OTP_VERIFY_URL + "?email=" + email + "&otp=" + otp, null, String.class
+                OTP_VERIFY_URL + "?email=" + email + "&otp=" + otp,
+                null,
+                String.class
         );
 
         if (!"OTP verified!".equals(otpResponse.getBody())) {
@@ -65,7 +74,7 @@ public class AuthController {
 
         UserDto userDto = pendingUsers.remove(email);
         if (userDto == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No user data found for this email."));
+            return ResponseEntity.badRequest().body(Map.of("error", "User data not found for this email."));
         }
 
         userService.createUser(userDto);
