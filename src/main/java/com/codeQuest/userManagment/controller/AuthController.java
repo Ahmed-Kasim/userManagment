@@ -5,13 +5,13 @@ import com.codeQuest.userManagment.dto.UserDto;
 import com.codeQuest.userManagment.entities.User;
 import com.codeQuest.userManagment.repository.UserRepository;
 import com.codeQuest.userManagment.service.UserService;
+import com.codeQuest.userManagment.service.OtpService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +26,8 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    private final String OTP_API_URL = "https://passwordrest-codequest-bb2878d83224.herokuapp.com/otp/send";
-    private final String OTP_VERIFY_URL = "https://passwordrest-codequest-bb2878d83224.herokuapp.com/otp/verify";
-
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private OtpService otpService;
 
     private Map<String, UserDto> pendingUsers = new ConcurrentHashMap<>();
 
@@ -45,15 +43,12 @@ public class AuthController {
 
         String email = userDto.getEmail();
 
+        // Store user temporarily before OTP verification
         pendingUsers.put(email, userDto);
 
-        ResponseEntity<String> otpResponse = restTemplate.postForEntity(
-                OTP_API_URL + "?email=" + email,
-                null,
-                String.class
-        );
-
-        if (!otpResponse.getBody().contains("OTP sent")) {
+        // Send OTP using the internal service
+        String resultMessage = otpService.sendOtp(email);  // Handle OTP generation and sending internally
+        if (!resultMessage.contains("sent")) {
             return ResponseEntity.badRequest().body(Map.of("error", "Failed to send OTP."));
         }
 
@@ -62,13 +57,9 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        ResponseEntity<String> otpResponse = restTemplate.postForEntity(
-                OTP_VERIFY_URL + "?email=" + email + "&otp=" + otp,
-                null,
-                String.class
-        );
+        boolean otpVerified = otpService.verifyOtp(email, otp);  // Verify OTP using the internal service
 
-        if (!"OTP verified!".equals(otpResponse.getBody())) {
+        if (!otpVerified) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid OTP!"));
         }
 
