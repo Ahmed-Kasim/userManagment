@@ -43,11 +43,9 @@ public class AuthController {
 
         String email = userDto.getEmail();
 
-        // Store user temporarily before OTP verification
         pendingUsers.put(email, userDto);
 
-        // Send OTP using the internal service
-        String resultMessage = otpService.sendOtp(email);  // Handle OTP generation and sending internally
+        String resultMessage = otpService.sendOtp(email);
         if (!resultMessage.contains("sent")) {
             return ResponseEntity.badRequest().body(Map.of("error", "Failed to send OTP."));
         }

@@ -12,14 +12,12 @@ public class OtpController {
     @Autowired
     private OtpService otpService;
 
-    // Sends OTP for email verification
     @PostMapping("/send")
     public ResponseEntity<String> sendOtp(@RequestParam String email) {
-        String result = otpService.sendOtp(email);  // Generate and store OTP internally
-        return ResponseEntity.ok(result);  // Return success message
+        String result = otpService.sendOtp(email);
+        return ResponseEntity.ok(result); 
     }
 
-    // Verifies OTP
     @PostMapping("/verify")
     public ResponseEntity<String> verifyOtp(@RequestParam String email, @RequestParam String otp) {
         boolean isValid = otpService.verifyOtp(email, otp);  // Verify OTP internally
