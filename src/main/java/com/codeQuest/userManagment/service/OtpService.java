@@ -25,7 +25,6 @@ public class OtpService {
         String otp = generateOtp();
         LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES);
 
-        // Remove any existing OTP for the email before creating a new one
         otpRepository.findByEmail(email).ifPresent(otpRepository::delete);
 
         OtpCode otpCode = new OtpCode();
@@ -42,7 +41,7 @@ public class OtpService {
         return otpRepository.findByEmail(email)
                 .filter(otpCode -> otpCode.getOtp().equals(otp) && LocalDateTime.now().isBefore(otpCode.getExpiryTime()))
                 .map(otpCode -> {
-                    otpRepository.delete(otpCode); // OTP is valid, remove it after use
+                    otpRepository.delete(otpCode);
                     return true;
                 })
                 .orElse(false);
@@ -50,7 +49,7 @@ public class OtpService {
 
     private String generateOtp() {
         Random random = new Random();
-        return String.format("%06d", random.nextInt(1000000)); // Generates a 6-digit OTP
+        return String.format("%06d", random.nextInt(1000000));
     }
 
     private void sendOtpToEmail(String email, String otp) {

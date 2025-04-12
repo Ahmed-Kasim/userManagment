@@ -2,6 +2,7 @@ package com.codeQuest.userManagment.service;
 
 import com.codeQuest.userManagment.dto.LoginRequest;
 import com.codeQuest.userManagment.dto.UserDto;
+import com.codeQuest.userManagment.dto.UserProfileDto;
 import com.codeQuest.userManagment.entities.User;
 import com.codeQuest.userManagment.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -56,6 +57,7 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
     public boolean login(LoginRequest loginRequest) {
         User user = userRepository.findByPhoneNum(loginRequest.getPhoneNum());
         if (user == null) {
@@ -80,9 +82,24 @@ public class UserService {
         Optional<User> userOptional = userRepository.findById(accId);
         return userOptional.orElse(null);
     }
+
     public boolean doesEmailExist(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public UserProfileDto getUserProfileByPhone(String phoneNum) {
+        User user = userRepository.findByPhoneNum(phoneNum);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found with phone number: " + phoneNum);
+        }
+
+        return new UserProfileDto(
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getPhoneNum(),
+                user.getGender(),
+                user.getBirthDate()
+        );
+    }
 }
-
-

@@ -2,6 +2,7 @@ package com.codeQuest.userManagment.controller;
 
 import com.codeQuest.userManagment.dto.LoginRequest;
 import com.codeQuest.userManagment.dto.UserDto;
+import com.codeQuest.userManagment.dto.UserProfileDto;
 import com.codeQuest.userManagment.entities.User;
 import com.codeQuest.userManagment.repository.UserRepository;
 import com.codeQuest.userManagment.service.UserService;
@@ -90,4 +91,15 @@ public class AuthController {
         boolean exists = userService.doesEmailExist(email);
         return ResponseEntity.ok(exists);
     }
+
+    @GetMapping("/profile/{phoneNum}")
+    public ResponseEntity<?> getProfileByPhone(@PathVariable String phoneNum) {
+        try {
+            UserProfileDto userProfile = userService.getUserProfileByPhone(phoneNum);
+            return ResponseEntity.ok(userProfile);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
+
 }
