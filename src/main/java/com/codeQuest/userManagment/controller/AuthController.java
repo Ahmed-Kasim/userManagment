@@ -1,6 +1,7 @@
 package com.codeQuest.userManagment.controller;
 
 import com.codeQuest.userManagment.dto.LoginRequest;
+import com.codeQuest.userManagment.dto.UpdateProfileRequest;
 import com.codeQuest.userManagment.dto.UserDto;
 import com.codeQuest.userManagment.dto.UserProfileDto;
 import com.codeQuest.userManagment.entities.User;
@@ -101,5 +102,16 @@ public class AuthController {
             return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/profile/edit")
+    public ResponseEntity<?> editProfile(@RequestBody @Valid UpdateProfileRequest updateRequest) {
+        try {
+            User updatedUser = userService.updateUserProfile(updateRequest);
+            return ResponseEntity.ok("Profile updated successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
 }

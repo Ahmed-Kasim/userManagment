@@ -2,6 +2,7 @@ package com.codeQuest.userManagment.service;
 
 import com.codeQuest.userManagment.dto.LoginRequest;
 import com.codeQuest.userManagment.dto.UserDto;
+import com.codeQuest.userManagment.dto.UpdateProfileRequest;
 import com.codeQuest.userManagment.dto.UserProfileDto;
 import com.codeQuest.userManagment.entities.User;
 import com.codeQuest.userManagment.repository.UserRepository;
@@ -102,4 +103,41 @@ public class UserService {
                 user.getBirthDate()
         );
     }
+
+    public User updateUserProfile(UpdateProfileRequest updateRequest) {
+        User user = userRepository.findByPhoneNum(updateRequest.getOldPhoneNum());
+        if (user == null) {
+            throw new IllegalArgumentException("User not found with phone number: " + updateRequest.getOldPhoneNum());
+        }
+
+        // Check if new phone number is different and available
+        if (!user.getPhoneNum().equals(updateRequest.getNewPhoneNum()) &&
+                userRepository.existsByPhoneNum(updateRequest.getNewPhoneNum())) {
+            throw new IllegalArgumentException("Phone number is already taken.");
+        }
+
+        // Check if new email is different and available
+        if (!user.getEmail().equals(updateRequest.getEmail()) &&
+                userRepository.existsByEmail(updateRequest.getEmail())) {
+            throw new IllegalArgumentException("Email is already taken.");
+        }
+
+        // Update fields
+        user.setPhoneNum(updateRequest.getNewPhoneNum());
+        user.setFirstName(updateRequest.getFirstName());
+        user.setLastName(updateRequest.getLastName());
+        user.setEmail(updateRequest.getEmail());
+        user.setGender(updateRequest.getGender());
+        user.setBirthDate(updateRequest.getBirthDate());
+
+        if (updateRequest.getNewPassword() != null && !updateRequest.getNewPassword().isEmpty()) {
+            if (!isStrongPassword(updateRequest.getNewPassword())) {
+                throw new IllegalArgumentException("Weak password! Use at least 8 characters, one uppercase, one lowercase, one digit, and one special character.");
+            }
+            user.setPassword(passwordEncoder.encode(updateRequest.getNewPassword()));
+        }
+
+        return userRepository.save(user);
+    }
+
 }
