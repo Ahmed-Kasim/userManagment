@@ -11,6 +11,5 @@ public class UserProfileDto {
     private String lastName;
     private String email;
     private String phoneNum;
-    private String gender;
     private String birthDate;
 }

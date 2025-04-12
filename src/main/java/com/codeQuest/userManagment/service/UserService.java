@@ -100,7 +100,6 @@ public class UserService {
                 user.getLastName(),
                 user.getEmail(),
                 user.getPhoneNum(),
-                user.getGender(),
                 user.getBirthDate()
         );
     }
