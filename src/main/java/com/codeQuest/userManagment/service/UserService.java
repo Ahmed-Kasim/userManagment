@@ -95,6 +95,7 @@ public class UserService {
         }
 
         return new UserProfileDto(
+                user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
@@ -110,19 +111,16 @@ public class UserService {
             throw new IllegalArgumentException("User not found with phone number: " + updateRequest.getOldPhoneNum());
         }
 
-        // Check if new phone number is different and available
         if (!user.getPhoneNum().equals(updateRequest.getNewPhoneNum()) &&
                 userRepository.existsByPhoneNum(updateRequest.getNewPhoneNum())) {
             throw new IllegalArgumentException("Phone number is already taken.");
         }
 
-        // Check if new email is different and available
         if (!user.getEmail().equals(updateRequest.getEmail()) &&
                 userRepository.existsByEmail(updateRequest.getEmail())) {
             throw new IllegalArgumentException("Email is already taken.");
         }
 
-        // Update fields
         user.setPhoneNum(updateRequest.getNewPhoneNum());
         user.setFirstName(updateRequest.getFirstName());
         user.setLastName(updateRequest.getLastName());
