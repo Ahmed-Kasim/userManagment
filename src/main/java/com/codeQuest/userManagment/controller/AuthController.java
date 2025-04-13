@@ -71,15 +71,15 @@ public class AuthController {
 
         try {
             userService.createUser(userDto);
-            otpService.deleteOtpByEmail(email); // Now it's safe to delete!
+            otpService.deleteOtpByEmail(email); // Delete OTP only after user is created successfully
             return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
         } catch (Exception e) {
-            // If something fails, OTP is still there for retry
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "User creation failed."));
         }
     }
+
 
 
     @PostMapping("/login")
