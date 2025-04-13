@@ -19,7 +19,7 @@ public class OtpService {
     @Autowired
     private OtpRepository otpRepository;
 
-    private static final int OTP_EXPIRATION_MINUTES = 2;
+    private static final int OTP_EXPIRATION_MINUTES = 5;
 
     public String sendOtp(String email) {
         String otp = generateOtp();
