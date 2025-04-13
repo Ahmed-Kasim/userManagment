@@ -15,7 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +29,8 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private OtpService otpService;
@@ -58,27 +61,34 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        log.info("Verifying OTP for email: {}", email);
+
         boolean otpVerified = otpService.verifyOtp(email, otp);
 
         if (!otpVerified) {
+            log.warn("OTP verification failed for email: {}", email);
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid OTP!"));
         }
 
-        UserDto userDto = pendingUsers.remove(email);
+        UserDto userDto = pendingUsers.get(email);  // Do NOT remove yet
         if (userDto == null) {
+            log.warn("No pending user data found for email: {}", email);
             return ResponseEntity.badRequest().body(Map.of("error", "User data not found for this email."));
         }
 
         try {
-            userService.createUser(userDto);
-            otpService.deleteOtpByEmail(email); // Delete OTP only after user is created successfully
+            userService.createUser(userDto);  // Only now call it
+            pendingUsers.remove(email);       // Only after successful creation
+            otpService.deleteOtpByEmail(email);  // Clean up OTP
+            log.info("User created and OTP deleted for email: {}", email);
             return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error creating user for email {}: {}", email, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "User creation failed."));
         }
     }
+
 
 
 
