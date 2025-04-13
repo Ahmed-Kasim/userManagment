@@ -37,19 +37,14 @@ public class OtpService {
         return "OTP sent successfully!";
     }
 
-    public void deleteOtpByEmail(String email) {
-        otpRepository.findByEmail(email).ifPresent(otpRepository::delete);
-    }
-
     public boolean verifyOtp(String email, String otp) {
         return otpRepository.findByEmail(email)
-                .filter(otpCode ->
-                        otpCode.getOtp() != null &&
-                                otpCode.getExpiryTime() != null &&
-                                otpCode.getOtp().equals(otp) &&
-                                LocalDateTime.now().isBefore(otpCode.getExpiryTime())
-                )
-                .isPresent();
+                .filter(otpCode -> otpCode.getOtp().equals(otp) && LocalDateTime.now().isBefore(otpCode.getExpiryTime()))
+                .map(otpCode -> {
+                    otpRepository.delete(otpCode);
+                    return true;
+                })
+                .orElse(false);
     }
 
     private String generateOtp() {

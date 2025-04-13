@@ -61,32 +61,20 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        log.info("Verifying OTP for email: {}", email);
-
-        boolean otpVerified = otpService.verifyOtp(email, otp);
+        boolean otpVerified = otpService.verifyOtp(email, otp);  // Verify OTP using the internal service
 
         if (!otpVerified) {
-            log.warn("OTP verification failed for email: {}", email);
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid OTP!"));
         }
 
-        UserDto userDto = pendingUsers.get(email);  // Do NOT remove yet
+        UserDto userDto = pendingUsers.remove(email);
         if (userDto == null) {
-            log.warn("No pending user data found for email: {}", email);
             return ResponseEntity.badRequest().body(Map.of("error", "User data not found for this email."));
         }
 
-        try {
-            userService.createUser(userDto);  // Only now call it
-            pendingUsers.remove(email);       // Only after successful creation
-            otpService.deleteOtpByEmail(email);  // Clean up OTP
-            log.info("User created and OTP deleted for email: {}", email);
-            return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
-        } catch (Exception e) {
-            log.error("Error creating user for email {}: {}", email, e.getMessage(), e);  // Full stack trace
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "User creation failed."));
-        }
+        userService.createUser(userDto);
+
+        return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
     }
 
 
