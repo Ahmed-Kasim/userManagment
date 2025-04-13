@@ -10,6 +10,7 @@ import com.codeQuest.userManagment.service.UserService;
 import com.codeQuest.userManagment.service.OtpService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -57,7 +58,7 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        boolean otpVerified = otpService.verifyOtp(email, otp);  // Verify OTP using the internal service
+        boolean otpVerified = otpService.verifyOtp(email, otp);
 
         if (!otpVerified) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid OTP!"));
@@ -68,10 +69,18 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "User data not found for this email."));
         }
 
-        userService.createUser(userDto);
-
-        return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
+        try {
+            userService.createUser(userDto);
+            otpService.deleteOtpByEmail(email); // Now it's safe to delete!
+            return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
+        } catch (Exception e) {
+            // If something fails, OTP is still there for retry
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "User creation failed."));
+        }
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
