@@ -83,7 +83,7 @@ public class AuthController {
             log.info("User created and OTP deleted for email: {}", email);
             return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
         } catch (Exception e) {
-            log.error("Error creating user for email {}: {}", email, e.getMessage());
+            log.error("Error creating user for email {}: {}", email, e.getMessage(), e);  // Full stack trace
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "User creation failed."));
         }
