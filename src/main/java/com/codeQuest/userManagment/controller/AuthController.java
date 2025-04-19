@@ -37,6 +37,7 @@ public class AuthController {
 
     private Map<String, UserDto> pendingUsers = new ConcurrentHashMap<>();
 
+    //Sign-up
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDto userDto, BindingResult result) {
         if (result.hasErrors()) {
@@ -46,40 +47,31 @@ public class AuthController {
             }
             return ResponseEntity.badRequest().body(errors);
         }
-
         String email = userDto.getEmail();
-
         pendingUsers.put(email, userDto);
-
         String resultMessage = otpService.sendOtp(email);
         if (!resultMessage.contains("sent")) {
             return ResponseEntity.badRequest().body(Map.of("error", "Failed to send OTP."));
         }
-
         return ResponseEntity.ok(Map.of("message", "OTP sent! Please enter your OTP to verify."));
     }
 
+    //send otp-after sign-up
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        boolean otpVerified = otpService.verifyOtp(email, otp);  // Verify OTP using the internal service
-
+        boolean otpVerified = otpService.verifyOtp(email, otp);
         if (!otpVerified) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid OTP!"));
         }
-
         UserDto userDto = pendingUsers.remove(email);
         if (userDto == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "User data not found for this email."));
         }
-
         userService.createUser(userDto);
-
         return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
     }
 
-
-
-
+    //login page
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         boolean isAuthenticated = userService.login(loginRequest);
@@ -88,18 +80,9 @@ public class AuthController {
                 : ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
     }
 
-    @GetMapping("/email/{accId}")
-    public ResponseEntity<String> getEmailByAccId(@PathVariable Long accId) {
-        User user = userService.getUserByAccId(accId);
-        return user != null ? ResponseEntity.ok(user.getEmail()) : ResponseEntity.notFound().build();
-    }
 
-    @GetMapping("/exists")
-    public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
-        boolean exists = userService.doesEmailExist(email);
-        return ResponseEntity.ok(exists);
-    }
 
+    //profile page
     @GetMapping("/profile/{phoneNum}")
     public ResponseEntity<?> getProfileByPhone(@PathVariable String phoneNum) {
         try {
@@ -110,6 +93,7 @@ public class AuthController {
         }
     }
 
+    //edit page
     @PutMapping("/profile/edit")
     public ResponseEntity<?> editProfile(@RequestBody @Valid UpdateProfileRequest updateRequest) {
         try {

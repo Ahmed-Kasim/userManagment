@@ -23,30 +23,13 @@ public class UserService {
     private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private static final String PHONE_REGEX = "^(010|011|012|015)[0-9]{8}$";
-    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com|outlook\\.com)$";
-
     public User createUser(com.codeQuest.userManagment.dto.@Valid UserDto userDto) {
-        if (!isValidPhoneNumber(userDto.getPhoneNum())) {
-            throw new IllegalArgumentException("Invalid phone number format! It must be 10 digits, optionally with a country code.");
-        }
-
-        if (!isValidEmail(userDto.getEmail())) {
-            throw new IllegalArgumentException("Invalid email format! Must be a valid Gmail, Yahoo, or Outlook address.");
-        }
-
         if (userRepository.existsByPhoneNum(userDto.getPhoneNum())) {
             throw new IllegalArgumentException("Phone number already exists!");
         }
-
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new IllegalArgumentException("Email already exists!");
         }
-
-        if (!isStrongPassword(userDto.getPassword())) {
-            throw new IllegalArgumentException("Weak password! Use at least 8 characters, one uppercase, one lowercase, one digit, and one special character.");
-        }
-
         User user = new User();
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setFirstName(userDto.getFirstName());
@@ -55,7 +38,6 @@ public class UserService {
         user.setPhoneNum(userDto.getPhoneNum());
         user.setGender(userDto.getGender());
         user.setBirthDate(userDto.getBirthDate());
-
         return userRepository.save(user);
     }
 
@@ -65,18 +47,6 @@ public class UserService {
             user = userRepository.findByEmail(loginRequest.getPhoneNum());
         }
         return user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-    }
-
-    private boolean isStrongPassword(String password) {
-        return password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$");
-    }
-
-    private boolean isValidPhoneNumber(String phone) {
-        return Pattern.matches(PHONE_REGEX, phone);
-    }
-
-    private boolean isValidEmail(String email) {
-        return Pattern.matches(EMAIL_REGEX, email);
     }
 
     public User getUserByAccId(Long accId) {
@@ -93,7 +63,6 @@ public class UserService {
         if (user == null) {
             throw new IllegalArgumentException("User not found with phone number: " + phoneNum);
         }
-
         return new UserProfileDto(
                 user.getId(),
                 user.getFirstName(),
@@ -109,31 +78,23 @@ public class UserService {
         if (user == null) {
             throw new IllegalArgumentException("User not found with phone number: " + updateRequest.getOldPhoneNum());
         }
-
         if (!user.getPhoneNum().equals(updateRequest.getNewPhoneNum()) &&
                 userRepository.existsByPhoneNum(updateRequest.getNewPhoneNum())) {
             throw new IllegalArgumentException("Phone number is already taken.");
         }
-
         if (!user.getEmail().equals(updateRequest.getEmail()) &&
                 userRepository.existsByEmail(updateRequest.getEmail())) {
             throw new IllegalArgumentException("Email is already taken.");
         }
-
         user.setPhoneNum(updateRequest.getNewPhoneNum());
         user.setFirstName(updateRequest.getFirstName());
         user.setLastName(updateRequest.getLastName());
         user.setEmail(updateRequest.getEmail());
         user.setGender(updateRequest.getGender());
         user.setBirthDate(updateRequest.getBirthDate());
-
         if (updateRequest.getNewPassword() != null && !updateRequest.getNewPassword().isEmpty()) {
-            if (!isStrongPassword(updateRequest.getNewPassword())) {
-                throw new IllegalArgumentException("Weak password! Use at least 8 characters, one uppercase, one lowercase, one digit, and one special character.");
-            }
             user.setPassword(passwordEncoder.encode(updateRequest.getNewPassword()));
         }
-
         return userRepository.save(user);
     }
 
