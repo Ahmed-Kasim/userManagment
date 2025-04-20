@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -67,17 +68,24 @@ public class AuthController {
         if (userDto == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "User data not found for this email."));
         }
-        userService.createUser(userDto);
-        return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
+        Optional<User> savedUser = userService.createUser(userDto);
+        return savedUser.map(user -> ResponseEntity.ok(Map.of(
+                        "message", "User registered successfully!",
+                        "userId", user.getId()
+                )))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "Registration failed. Please try again.")));
     }
 
     //login page
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        boolean isAuthenticated = userService.login(loginRequest);
-        return isAuthenticated
-                ? ResponseEntity.ok(Map.of("message", "Login Successful"))
-                : ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+        Optional<User> user = userService.login(loginRequest);
+        return user.map(u -> ResponseEntity.ok(Map.of(
+                        "message", "Login Successful",
+                        "userId", u.getId()
+                )))
+                .orElseGet(() -> ResponseEntity.status(401).body(Map.of("error", "Invalid credentials")));
     }
 
 

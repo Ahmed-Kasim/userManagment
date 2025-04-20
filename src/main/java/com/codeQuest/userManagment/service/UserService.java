@@ -23,13 +23,14 @@ public class UserService {
     private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public User createUser(com.codeQuest.userManagment.dto.@Valid UserDto userDto) {
+    public Optional<User> createUser(UserDto userDto) {
         if (userRepository.existsByPhoneNum(userDto.getPhoneNum())) {
             throw new IllegalArgumentException("Phone number already exists!");
         }
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new IllegalArgumentException("Email already exists!");
         }
+
         User user = new User();
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setFirstName(userDto.getFirstName());
@@ -38,15 +39,21 @@ public class UserService {
         user.setPhoneNum(userDto.getPhoneNum());
         user.setGender(userDto.getGender());
         user.setBirthDate(userDto.getBirthDate());
-        return userRepository.save(user);
+
+        return Optional.of(userRepository.save(user));
     }
 
-    public boolean login(LoginRequest loginRequest) {
+    public Optional<User> login(LoginRequest loginRequest) {
         User user = userRepository.findByPhoneNum(loginRequest.getPhoneNum());
         if (user == null) {
             user = userRepository.findByEmail(loginRequest.getPhoneNum());
         }
-        return user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+
+        if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            return Optional.of(user);
+        }
+
+        return Optional.empty();
     }
 
     public User getUserByAccId(Long accId) {
