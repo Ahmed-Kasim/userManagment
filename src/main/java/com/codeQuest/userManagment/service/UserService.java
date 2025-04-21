@@ -65,44 +65,39 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    public UserProfileDto getUserProfileByPhone(String phoneNum) {
-        User user = userRepository.findByPhoneNum(phoneNum);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found with phone number: " + phoneNum);
-        }
-        return new UserProfileDto(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getPhoneNum(),
-                user.getBirthDate()
-        );
+    public UserProfileDto getUserProfileById(Long accId) {
+        return userRepository.findById(accId)
+                .map(user -> new UserProfileDto(
+                        user.getId(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getEmail(),
+                        user.getPhoneNum(),
+                        user.getBirthDate()
+                ))
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + accId));
     }
 
-    public User updateUserProfile(UpdateProfileRequest updateRequest) {
-        User user = userRepository.findByPhoneNum(updateRequest.getOldPhoneNum());
-        if (user == null) {
-            throw new IllegalArgumentException("User not found with phone number: " + updateRequest.getOldPhoneNum());
-        }
-        if (!user.getPhoneNum().equals(updateRequest.getNewPhoneNum()) &&
-                userRepository.existsByPhoneNum(updateRequest.getNewPhoneNum())) {
-            throw new IllegalArgumentException("Phone number is already taken.");
-        }
-        if (!user.getEmail().equals(updateRequest.getEmail()) &&
-                userRepository.existsByEmail(updateRequest.getEmail())) {
-            throw new IllegalArgumentException("Email is already taken.");
-        }
-        user.setPhoneNum(updateRequest.getNewPhoneNum());
-        user.setFirstName(updateRequest.getFirstName());
-        user.setLastName(updateRequest.getLastName());
-        user.setEmail(updateRequest.getEmail());
-        user.setGender(updateRequest.getGender());
-        user.setBirthDate(updateRequest.getBirthDate());
-        if (updateRequest.getNewPassword() != null && !updateRequest.getNewPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(updateRequest.getNewPassword()));
-        }
-        return userRepository.save(user);
+    public Optional<User> updateUserProfile(UpdateProfileRequest updateRequest) {
+        return userRepository.findById(updateRequest.getId()).map(user -> {
+            if (!user.getPhoneNum().equals(updateRequest.getNewPhoneNum()) &&
+                    userRepository.existsByPhoneNum(updateRequest.getNewPhoneNum())) {
+                throw new IllegalArgumentException("Phone number is already taken.");
+            }
+
+            if (!user.getEmail().equals(updateRequest.getEmail()) &&
+                    userRepository.existsByEmail(updateRequest.getEmail())) {
+                throw new IllegalArgumentException("Email is already taken.");
+            }
+
+            user.setPhoneNum(updateRequest.getNewPhoneNum());
+            user.setFirstName(updateRequest.getFirstName());
+            user.setLastName(updateRequest.getLastName());
+            user.setEmail(updateRequest.getEmail());
+            user.setBirthDate(updateRequest.getBirthDate());
+
+            return userRepository.save(user);
+        });
     }
 
 }

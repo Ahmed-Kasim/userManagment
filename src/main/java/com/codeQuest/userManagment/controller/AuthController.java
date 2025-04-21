@@ -91,10 +91,10 @@ public class AuthController {
 
 
     //profile page
-    @GetMapping("/profile/{phoneNum}")
-    public ResponseEntity<?> getProfileByPhone(@PathVariable String phoneNum) {
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<?> getProfileById(@PathVariable Long userId) {
         try {
-            UserProfileDto userProfile = userService.getUserProfileByPhone(phoneNum);
+            UserProfileDto userProfile = userService.getUserProfileById(userId);
             return ResponseEntity.ok(userProfile);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
@@ -105,7 +105,7 @@ public class AuthController {
     @PutMapping("/profile/edit")
     public ResponseEntity<?> editProfile(@RequestBody @Valid UpdateProfileRequest updateRequest) {
         try {
-            User updatedUser = userService.updateUserProfile(updateRequest);
+            Optional<User> updatedUser = userService.updateUserProfile(updateRequest);
             return ResponseEntity.ok("Profile updated successfully.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

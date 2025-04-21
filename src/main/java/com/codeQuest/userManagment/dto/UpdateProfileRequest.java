@@ -8,8 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 public class UpdateProfileRequest {
 
-    @NotBlank
-    private String oldPhoneNum;  // Current phone number used to find the user
+    @NotNull
+    private Long Id;
 
     @NotBlank
     @Pattern(regexp = "^(010|011|012|015)[0-9]{8}$", message = "Invalid phone number format.")
@@ -27,10 +27,5 @@ public class UpdateProfileRequest {
     private String email;
 
     @NotBlank
-    private String gender;
-
-    @NotBlank
     private String birthDate;
-
-    private String newPassword;
 }
