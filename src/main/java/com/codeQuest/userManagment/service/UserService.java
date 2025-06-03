@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -40,7 +41,17 @@ public class UserService {
         user.setGender(userDto.getGender());
         user.setBirthDate(userDto.getBirthDate());
 
-        return Optional.of(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String enrollUrl = "https://course-codequest-215c3c02f593.herokuapp.com/api/courses/1/enroll?userId=" + savedUser.getId();
+            restTemplate.postForObject(enrollUrl, null, Void.class);
+        } catch (Exception e) {
+            System.err.println("Auto-enrollment failed: " + e.getMessage());
+        }
+
+        return Optional.of(savedUser);
     }
 
     public Optional<User> login(LoginRequest loginRequest) {
@@ -54,11 +65,6 @@ public class UserService {
         }
 
         return Optional.empty();
-    }
-
-    public User getUserByAccId(Long accId) {
-        Optional<User> userOptional = userRepository.findById(accId);
-        return userOptional.orElse(null);
     }
 
     public boolean doesEmailExist(String email) {
