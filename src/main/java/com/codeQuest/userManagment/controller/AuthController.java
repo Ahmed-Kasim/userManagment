@@ -1,9 +1,6 @@
 package com.codeQuest.userManagment.controller;
 
-import com.codeQuest.userManagment.dto.LoginRequest;
-import com.codeQuest.userManagment.dto.UpdateProfileRequest;
-import com.codeQuest.userManagment.dto.UserDto;
-import com.codeQuest.userManagment.dto.UserProfileDto;
+import com.codeQuest.userManagment.dto.*;
 import com.codeQuest.userManagment.entities.User;
 import com.codeQuest.userManagment.repository.UserRepository;
 import com.codeQuest.userManagment.service.UserService;
@@ -112,5 +109,10 @@ public class AuthController {
         }
     }
 
+    @PutMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        userService.resetPassword(request.getEmail(),request.getNewPassword());
+        return ResponseEntity.ok("Password has been successfully reset.");
+    }
 
 }
