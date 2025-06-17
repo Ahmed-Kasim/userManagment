@@ -85,8 +85,6 @@ public class AuthController {
                 .orElseGet(() -> ResponseEntity.status(401).body(Map.of("error", "Invalid credentials")));
     }
 
-
-
     //profile page
     @GetMapping("/profile/{userId}")
     public ResponseEntity<?> getProfileById(@PathVariable Long userId) {

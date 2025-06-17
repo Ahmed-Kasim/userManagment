@@ -1,7 +1,15 @@
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\config\MailConfig.java
 C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\controller\AuthController.java
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\controller\OtpController.java
 C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\dto\LoginRequest.java
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\dto\ResetPasswordRequest.java
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\dto\UpdateProfileRequest.java
 C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\dto\UserDto.java
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\dto\UserProfileDto.java
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\entities\OtpCode.java
 C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\entities\User.java
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\repository\OtpRepository.java
 C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\repository\UserRepository.java
+C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\service\OtpService.java
 C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\service\UserService.java
 C:\Users\LALETA\Desktop\userManagment\src\main\java\com\codeQuest\userManagment\UserManagmentApplication.java

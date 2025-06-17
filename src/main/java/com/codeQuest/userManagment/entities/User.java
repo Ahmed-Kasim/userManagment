@@ -37,6 +37,4 @@ public class User {
 
     @Column(name = "B_date")
     private String birthDate;
-
-    // Getters and setter
 }
